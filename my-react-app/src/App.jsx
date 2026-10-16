@@ -69,7 +69,7 @@
 //                   aria-hidden="true"
 //                 >
 //                   <use href="/icons.svg#github-icon"></use>
-//                 </svg>
+//                  </svg>
 //                 GitHub
 //               </a>
 //             </li>
@@ -129,23 +129,70 @@
 //   return (
 //     <div>
      
-//      <h1 className="greet">Hello + React</h1>
+//      <h1 className="great">Hello + React</h1>
 // <img src={reactimg} alt="React" />
 //     </div>
 //   );
 // }
 // export default App;
+// 
+// import React from 'react';    
+//  import './App.css';
+//  import img from './assets/reactimg.png';
+//  import Button from './components/UI/button/button.jsx';
 
+//  const App = () => {
+//   return (
+//     <div>
+//     {/* <h1 className="great">Hello React</h1>
+//       <img src={img} alt="Sample" width="200" />
+//      <br /><br />
+//      <label htmlFor="username">Enter your name:</label>
+//      <input type="text" id="username" placeholder="Enter name" />
+//        <br /><br />
+//       <Button name="Click Me" onClick={() => alert('Hello React!')} />*/}
+// <label>Counter:{counter}</label>
+//       <button name= {"Increment"} onClick={()=>setCounter(counter+1)}>Increment</button>
+//       <button name= {"Decrement"} onClick={()=>setCounter(counter-1)}>Decrement</button>
 
-// import React, { useEffect, useState } from 'react';
+//    </div>
+//   );
+//  };
+// export default App; 
+
+// import { useState } from 'react';
 // import './App.css';
-// import img from './assets/hero.png';
+// import img from './assets/reactimg.png';
+// import Button from './components/UI/button/button';
+
+// const App = () => {
+//   const [counter, setCounter] = useState(0);
+
+//   return (
+//     <div>
+//       <h1 className="greet">Hello React</h1>
+//       <img src={img} alt="Sample" width="200" />
+//       <br /><br />
+//       <label htmlFor="username">Enter your name:</label>
+//       <input type="text" id="username" placeholder="Enter name" />
+//       <br /><br />
+//       <label>Counter: {counter}</label>
+//       <Button name="Increment" onClick={() => setCounter((prev) => prev + 1)} />
+//       <Button name="Decrement" onClick={() => setCounter((prev) => prev - 1)} />
+//     </div>
+//   );
+// };
+
+// export default App;
+
+// import { useEffect, useState } from 'react';
+// import './App.css';
 
 // const App = () => {
 //   const [counter, setCounter] = useState(0);
 //   const [data, setData] = useState([]);
-
-//  useEffect(() => {
+  
+//   useEffect(() => {
 //     const fetchData = async () => {
 //       const response = await fetch('https://jsonplaceholder.typicode.com/users');
 //       const data = await response.json();
@@ -156,20 +203,14 @@
 
 //   return (
 //     <div>
-//       <h1 className="greet">Hello React</h1>
-//       <img src={img} alt="Sample" width="200" />
-//       <br /><br />
-
-//       <label htmlFor="username">Enter your name:</label>
-//       <input type="text" id="username" placeholder="Enter name" />
-//       <br /><br />
-
-//       <button onClick={() => alert('Hello React!')}>Click Me</button>
-//       <br /><br />
-
-//       <label>Counter: {counter}</label>
-//       <button onClick={() => setCounter(counter + 1)}>Increment</button>
-//       <button onClick={() => setCounter(counter - 1)}>Decrement</button>
+//       {/* <h1 className="greet">Hello! Vite + React</h1>
+//       <img className="image" src={tulipImage} alt="Tulip" /><br />
+//       <label>Name:</label> 
+//       <input type="text" ></input><br></br>
+//       <Button name="Hello all" onClick={() => alert('Button is clicked')} /> */}
+//       <label>Counter:{counter}</label>
+//       <button name= {"Increment"} onClick={()=>setCounter(counter+1)}>Increment</button>
+//       <button name= {"Decrement"} onClick={()=>setCounter(counter-1)}>Decrement</button>
 
 //       <h2>Users</h2>
 //       <ul>
@@ -181,86 +222,325 @@
 //       </ul>
 //     </div>
 //   );
-// };
+// }
+// export default App;         
 
+
+
+
+
+
+
+
+
+// import {useState} from "react";
+// import Title from "./components/Title.jsx";
+// function App() {
+//   const [count, setCount]=useState(0);
+//   return(
+//     <>
+//     <Title count={count} />
+//     <button onClick={() => setCount(count + 1)}>Click me</button>
+//     </>
+//   );
+// }
 // export default App;
 
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './App.css';
 
+function getPhoneIdFromHash() {
+  const match = window.location.hash.match(/^#\/phones\/(\d+)$/);
+  return match ? match[1] : null;
+}
+
 function App() {
-  const [data, setData] = useState([]);
+  const [phoneId, setPhoneId] = useState(getPhoneIdFromHash);
+  const [toast, setToast] = useState(null);
+
+  useEffect(() => {
+    function handleHashChange() {
+      setPhoneId(getPhoneIdFromHash());
+    }
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  useEffect(() => {
+    if (!toast) {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => setToast(null), 4000);
+    return () => window.clearTimeout(timeoutId);
+  }, [toast]);
+
+  const showHttpStatus = useCallback((status, statusText, subject) => {
+    const successful = status === 200;
+    setToast({
+      id: Date.now(),
+      successful,
+      message: successful
+        ? `200 OK - ${subject} loaded successfully`
+        : `${status} ${statusText} - Unable to load ${subject}`,
+    });
+  }, []);
+
+  return (
+    <>
+      {phoneId
+        ? <PhoneDetails phoneId={phoneId} onHttpStatus={showHttpStatus} />
+        : <PhoneList onHttpStatus={showHttpStatus} />}
+      {toast && (
+        <div
+          key={toast.id}
+          className={`http-toast ${toast.successful ? 'http-toast-success' : 'http-toast-error'}`}
+          role={toast.successful ? 'status' : 'alert'}
+        >
+          {toast.message}
+        </div>
+      )}
+    </>
+  );
+}
+
+function PhoneList({ onHttpStatus }) {
+  const [mobiles, setMobiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch('https://jsonplaceholder.typicode.com/users')
-      .then(res => {
-        if (!res.ok) {
-          throw new Error('Failed to fetch users');
+    async function loadMobiles() {
+      try {
+        const response = await fetch('https://dummyjson.com/products/category/smartphones', {
+          cache: 'no-store',
+        });
+        onHttpStatus(response.status, response.statusText, 'phone list');
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
         }
-        return res.json();
-      })
-      .then(users => {
-        setData(users);
-      })
-      .catch(() => {
-        setError('Unable to load user details. Please try again.');
-      })
-      .finally(() => {
+
+        const data = await response.json();
+        if (!Array.isArray(data.products)) {
+          throw new Error('The response did not contain a phone list.');
+        }
+        setMobiles(data.products);
+      } catch (loadError) {
+        console.error('Unable to load mobile phones:', loadError);
+        setError(
+          loadError instanceof Error
+            ? `Unable to load phones: ${loadError.message}`
+            : 'Unable to load phones. Please check your connection and try again.',
+        );
+      } finally {
         setLoading(false);
-      });
-  }, []);
+      }
+    }
+
+    loadMobiles();
+  }, [onHttpStatus]);
 
   return (
-    <div className="container">
-      <h1>User Details</h1>
-      <p className="subtitle">
-        User Information Dashboard
-      </p>
+    <main className="container">
+      <h2>Mobile Phone Details</h2>
 
-      {loading && <p>Loading users...</p>}
+      {loading && <p className="status-message" role="status">Loading phones...</p>}
+      {!loading && error && <p className="status-message error-message" role="alert">{error}</p>}
+      {!loading && !error && mobiles.length === 0 && (
+        <p className="status-message empty-message">No phones found.</p>
+      )}
 
-      {error && <p className="error">{error}</p>}
-
-      {!loading && !error && (
-        <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Address</th>
-                <th>Phone</th>
-                <th>Website</th>
-                <th>Company</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {data.map(user => (
-                <tr key={user.id}>
-                  <td>{user.id}</td>
-                  <td className="name">{user.name}</td>
-                  <td>{user.username}</td>
-                  <td>{user.email}</td>
-                  <td>
-                    {user.address.street}, {user.address.city}
-                  </td>
-                  <td>{user.phone}</td>
-                  <td>{user.website}</td>
-                  <td>{user.company.name}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {!loading && !error && mobiles.length > 0 && (
+        <div className="mobile-container">
+          {mobiles.map((mobile) => (
+            <article className="card" key={mobile.id}>
+              <img src={mobile.thumbnail} alt={mobile.title} />
+              <h3>{mobile.title}</h3>
+              <p><b>Brand:</b> {mobile.brand || 'N/A'}</p>
+              <p><b>Price:</b> ${mobile.price}</p>
+              <p><b>Rating:</b> {mobile.rating}</p>
+              <p><b>Stock:</b> {mobile.stock}</p>
+              <a className="details-link" href={`#/phones/${mobile.id}`}>
+                View Details
+              </a>
+            </article>
+          ))}
         </div>
       )}
-    </div>
+    </main>
+  );
+}
+
+function PhoneDetails({ phoneId, onHttpStatus }) {
+  const [mobile, setMobile] = useState(null);
+  const [relatedMobiles, setRelatedMobiles] = useState([]);
+  const [relatedLoading, setRelatedLoading] = useState(true);
+  const [relatedError, setRelatedError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadMobile() {
+      setLoading(true);
+      setError('');
+      setMobile(null);
+
+      try {
+        const response = await fetch(`https://dummyjson.com/products/${phoneId}`, {
+          signal: controller.signal,
+          cache: 'no-store',
+        });
+        if (!controller.signal.aborted) {
+          onHttpStatus(response.status, response.statusText, 'phone details');
+        }
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+        setMobile(await response.json());
+      } catch (loadError) {
+        if (!controller.signal.aborted) {
+          console.error('Unable to load phone details:', loadError);
+          setError(
+            loadError instanceof Error
+              ? `Unable to load phone details: ${loadError.message}`
+              : 'Unable to load phone details. Please try again later.',
+          );
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadMobile();
+    return () => controller.abort();
+  }, [phoneId, onHttpStatus]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadRelatedMobiles() {
+      setRelatedLoading(true);
+      setRelatedError('');
+      setRelatedMobiles([]);
+
+      try {
+        const response = await fetch(
+          'https://dummyjson.com/products/category/smartphones',
+          { signal: controller.signal, cache: 'no-store' },
+        );
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (!Array.isArray(data.products)) {
+          throw new Error('The response did not contain a phone list.');
+        }
+
+        setRelatedMobiles(
+          data.products.filter((phone) => String(phone.id) !== phoneId).slice(0, 2),
+        );
+      } catch (loadError) {
+        if (!controller.signal.aborted) {
+          console.error('Unable to load related phones:', loadError);
+          setRelatedError(
+            loadError instanceof Error
+              ? `Could not load related phones: ${loadError.message}`
+              : 'Could not load related phones.',
+          );
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setRelatedLoading(false);
+        }
+      }
+    }
+
+    loadRelatedMobiles();
+    return () => controller.abort();
+  }, [phoneId]);
+
+  return (
+    <main className="container">
+      <a className="back-link" href="#/">← Back to phones</a>
+
+      {loading && <p className="status-message" role="status">Loading phone details...</p>}
+      {!loading && error && <p className="status-message error-message" role="alert">{error}</p>}
+      {!loading && !error && !mobile && (
+        <p className="status-message empty-message">Phone not found.</p>
+      )}
+
+      {!loading && !error && mobile && (
+        <>
+          <article className="phone-details">
+            <div className="phone-gallery">
+              {(mobile.images?.length ? mobile.images : [mobile.thumbnail]).map((image, index) => (
+                <img key={image} src={image} alt={`${mobile.title}, image ${index + 1}`} />
+              ))}
+            </div>
+
+            <section className="phone-information">
+              <h2>{mobile.title}</h2>
+              <p>{mobile.description}</p>
+              <p><b>Brand:</b> {mobile.brand || 'N/A'}</p>
+              <p><b>Price:</b> ${mobile.price}</p>
+              <p><b>Discount:</b> {mobile.discountPercentage}%</p>
+              <p><b>Rating:</b> {mobile.rating} / 5</p>
+              <p><b>Stock:</b> {mobile.stock}</p>
+              <p><b>Availability:</b> {mobile.availabilityStatus || 'N/A'}</p>
+              <p><b>Category:</b> {mobile.category || 'N/A'}</p>
+              <p><b>SKU:</b> {mobile.sku || 'N/A'}</p>
+              <p><b>Weight:</b> {mobile.weight ? `${mobile.weight} g` : 'N/A'}</p>
+
+              {mobile.dimensions && (
+                <p>
+                  <b>Dimensions:</b> {mobile.dimensions.width} × {mobile.dimensions.height} × {mobile.dimensions.depth}
+                </p>
+              )}
+
+              <h3>Shipping and Returns</h3>
+              <p><b>Warranty:</b> {mobile.warrantyInformation || 'N/A'}</p>
+              <p><b>Shipping:</b> {mobile.shippingInformation || 'N/A'}</p>
+              <p><b>Return policy:</b> {mobile.returnPolicy || 'N/A'}</p>
+              <p><b>Minimum order quantity:</b> {mobile.minimumOrderQuantity || 'N/A'}</p>
+            </section>
+          </article>
+
+          <section className="related-phones" aria-labelledby="related-phones-title">
+            <h2 id="related-phones-title">You May Also Like</h2>
+            {relatedLoading && (
+              <p className="status-message" role="status">Loading related phones...</p>
+            )}
+            {!relatedLoading && relatedError && (
+              <p className="status-message error-message" role="alert">{relatedError}</p>
+            )}
+            {!relatedLoading && !relatedError && relatedMobiles.length === 0 && (
+              <p className="status-message empty-message">No other phones found.</p>
+            )}
+            {!relatedLoading && !relatedError && relatedMobiles.length > 0 && (
+              <div className="related-phone-list">
+                {relatedMobiles.map((phone) => (
+                  <article className="related-phone-card" key={phone.id}>
+                    <img src={phone.thumbnail} alt={phone.title} />
+                    <h3>{phone.title}</h3>
+                    <p><b>Price:</b> ${phone.price}</p>
+                    <a href={`#/phones/${phone.id}`}>View Details</a>
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+        </>
+      )}
+    </main>
   );
 }
 
 export default App;
+//
